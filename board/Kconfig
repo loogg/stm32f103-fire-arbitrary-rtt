@@ -1,0 +1,39 @@
+menu "Hardware Drivers Config"
+
+config SOC_FAMILY_STM32
+    bool
+
+config SOC_SERIES_STM32F1
+    bool
+    select ARCH_ARM_CORTEX_M3
+    select SOC_FAMILY_STM32
+
+config SOC_STM32F103ZE
+    bool
+    select SOC_SERIES_STM32F1
+    select RT_USING_COMPONENTS_INIT
+    select RT_USING_USER_MAIN
+    default y
+
+menu "Onboard Peripheral Drivers"
+
+endmenu
+
+menu "On-chip Peripheral Drivers"
+
+    config BSP_USING_GPIO
+        bool
+        select RT_USING_PIN
+        default y
+
+    config BSP_USING_UART
+        bool
+        default y
+
+endmenu
+
+menu "Board extended module Drivers"
+
+endmenu
+
+endmenu

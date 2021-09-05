@@ -1,0 +1,49 @@
+import os
+import rtconfig
+from building import *
+
+cwd = GetCurrentDir()
+
+# add general drivers
+src = Split('''
+CubeMX_Config/Core/Src/stm32f1xx_hal_msp.c
+CubeMX_Config/Core/Src/stm32f1xx_it.c
+CubeMX_Config/Core/Src/system_stm32f1xx.c
+''')
+
+path =  [cwd]
+path += [cwd + '/CubeMX_Config/Core/Inc']
+path += [cwd + '/ports']
+
+if rtconfig.CROSS_TOOL == 'gcc':
+    src += ['startup/gcc/startup_stm32f103xe.s']
+elif rtconfig.CROSS_TOOL == 'keil':
+    src += ['startup/arm/startup_stm32f103xe.s']
+elif rtconfig.CROSS_TOOL == 'iar':
+    src += ['startup/iar/startup_stm32f103xe.s']
+
+CPPDEFINES = ['STM32F103xE']
+group = DefineGroup('Drivers', src, depend = [''], CPPPATH = path, CPPDEFINES = CPPDEFINES)
+objs = [group]
+
+# add general libraries
+src = Glob('CubeMX_Config/Drivers/STM32F1xx_HAL_Driver/Src/*.c')
+
+path =  [cwd + '/CubeMX_Config/Drivers/CMSIS/Device/ST/STM32F1xx/Include',
+         cwd + '/CubeMX_Config/Drivers/CMSIS/Include',
+         cwd + '/CubeMX_Config/Drivers/STM32F1xx_HAL_Driver/Inc',
+         cwd + '/CubeMX_Config/Drivers/STM32F1xx_HAL_Driver/Inc/Legacy']
+
+CPPDEFINES = ['USE_HAL_DRIVER']
+group = DefineGroup('Libraries', src, depend = [''], CPPPATH = path, CPPDEFINES = CPPDEFINES)
+objs += [group]
+
+# add main.c to  applications
+src = ['CubeMX_Config/Core/Src/main.c']
+
+path = []
+
+group = DefineGroup('Applications', src, depend = [''], CPPPATH = path)
+objs += [group]
+
+Return('objs')
